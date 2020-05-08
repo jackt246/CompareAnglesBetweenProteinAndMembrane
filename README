@@ -1,0 +1,7 @@
+Currently there are two pythong scripts.
+
+The python scirpt: CompateAnglesBetweenProteinAndMembrane is the main script that takes in your relion star files from your membrane alignment and you protein alignment.
+
+The membrane can be considered a C1 alignment and many classes could be aligned to get different curvatures. To get the correct starting vector for this you can run the Membraneproprocessing script first.
+
+If you just want a quick and dirty alignment align the membrane with C3 symmetry so thast the vector is 0,0,1

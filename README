@@ -5,3 +5,5 @@ The python scirpt: CompateAnglesBetweenProteinAndMembrane is the main script tha
 The membrane can be considered a C1 alignment and many classes could be aligned to get different curvatures. To get the correct starting vector for this you can run the Membraneproprocessing script first.
 
 If you just want a quick and dirty alignment align the membrane with C3 symmetry so thast the vector is 0,0,1
+
+If just wanting to run the main script to see how things work you can use the protein and membrane example star files. This is based on real data however is not correctly processed. 

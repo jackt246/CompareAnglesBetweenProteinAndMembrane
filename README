@@ -6,4 +6,6 @@ CompareAnglesBetweenProteinAndMembrane requires you to define 2 starting vectors
 
 If you just want a quick and dirty calculation align the membrane with C3 symmetry so that the vector is 0,0,1.
 
-If just wanting to run the main script to see how things work you can use the protein and membrane example star files. This is based on real data but has not been verified to be correct. 
+If just wanting to run the main script to see how things work you can use the protein and membrane example star files. This is based on real data but has not been verified to be correct.
+
+Note: Membranepreprocessing has had less thought put into the layout and the input information is under the function definitions. 

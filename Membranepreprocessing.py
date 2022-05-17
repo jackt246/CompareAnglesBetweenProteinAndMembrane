@@ -10,7 +10,7 @@ def mrcopen(mrcfilename):
        mrcfiledata = np.array(mrc.data)
 
     return mrcfiledata
-
+'''
 def zgradient(array):
     centralslices = array[:, :, (90, 110)]
     centralslices2 = array[:, (90, 110), :]
@@ -71,12 +71,12 @@ def zgradient(array):
     Zgradient = Split1min - Split2min
     Zgradient2 = Split3min - Split4min
     return Zgradient, Zgradient2
-
+'''
 
 def Zvector(array):
     #get the central slices and sum for some extra SNR
-    centralslices = array[:, :, (90, 110)]
-    centralslices2 = array[:, (90, 110), :]
+    centralslices = array[:, :, 80:120]
+    centralslices2 = array[:, 80:120, :]
     centralslicessum = np.sum(centralslices, axis=2)
     centralslicessum2 = np.sum(centralslices2, axis=1)
 
@@ -95,7 +95,7 @@ def Zvector(array):
     ax[1].scatter(Xdirection[1], Xdirection[0])
     ax[1].plot(Xdirection[1], Xm * Xdirection[1] + Xc, color='y')
     plt.setp(ax, xlim=(0,200), ylim=(0,200))
-    #plt.show()
+    plt.show()
     #use equation for a line to calculate the z values
     Yzmin = Ym * (0) + Yc
     Yzmax = Ym * (200) + Yc
@@ -126,10 +126,10 @@ def Zvector(array):
     return YZ, XZ
 
 #open the membrane mrc file
-membrane = mrcopen('job907membrane2.mrc')
+membrane = mrcopen('Jack_data/27082020/job1012_class1_c3mem.mrc')
 
 #filter according to chimera so that there is only membrane density in the volume
-membrane[membrane < 0.00785] = 0
+membrane[membrane < 0.00551] = 0
 #plt.imshow(membrane[:,:,100])
 
 YZ, XZ = Zvector(membrane)
@@ -139,20 +139,21 @@ VectorAlongY = (0, 200, YZ)
 
 Cross = np.cross(VectorAlongX, VectorAlongY)
 Cross = Cross / np.linalg.norm(Cross)
+print(Cross)
 point = np.array([100,100,100])
 xx, yy = np.meshgrid(range(200), range(200))
 d = -point.dot(Cross)
 zz = (-Cross[0] * xx - Cross[1] * yy -d) * 1. / Cross[2]
 threedimensionplot = np.where(membrane > 0)
-threedimensionplotx = threedimensionplot[2][1::75]
-threedimensionploty = threedimensionplot[1][1::75]
-threedimensionplotz = threedimensionplot[0][1::75]
+threedimensionplotx = threedimensionplot[2][1::25]
+threedimensionploty = threedimensionplot[1][1::25]
+threedimensionplotz = threedimensionplot[0][1::25]
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-
-ax.scatter(threedimensionplotx, threedimensionploty, threedimensionplotz)
 ax.plot_surface(xx,yy, zz, color='y')
+ax.scatter(threedimensionplotx, threedimensionploty, threedimensionplotz)
+
 ax.set_xlim(0,200)
 ax.set_ylim(0,200)
 ax.set_zlim(0,200)

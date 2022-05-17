@@ -1,9 +1,9 @@
 Currently there are two pythong scripts.
 
-The python scirpt: CompateAnglesBetweenProteinAndMembrane is the main script that takes in your relion star files from your membrane alignment and you protein alignment.
+The python scirpt: CompareAnglesBetweenProteinAndMembrane is the main script that takes in your relion star files from two seperate alignments in Relion. One alignment should use an alignment mask which focuses only on the ectodomain whilst the other focuses solely on the membrane.
 
-The membrane can be considered a C1 alignment and many classes could be aligned to get different curvatures. To get the correct starting vector for this you can run the Membraneproprocessing script first.
+CompareAnglesBetweenProteinAndMembrane requires you to define 2 starting vectors. Align the ectodomain of the protein with C3 symmetry or similar and you can simply used 0,0,1 for this vector. The membrane can be considered a C1 alignment and many classes could be aligned to get different curvatures. To get the correct starting vector for this you can run the Membraneproprocessing script first.
 
-If you just want a quick and dirty alignment align the membrane with C3 symmetry so thast the vector is 0,0,1
+If you just want a quick and dirty calculation align the membrane with C3 symmetry so that the vector is 0,0,1.
 
-If just wanting to run the main script to see how things work you can use the protein and membrane example star files. This is based on real data however is not correctly processed. 
+If just wanting to run the main script to see how things work you can use the protein and membrane example star files. This is based on real data but has not been verified to be correct. 

@@ -12,15 +12,15 @@ from tqdm import tqdm
 ### -------------- USER INPUTS -------------- ###
 
 # Provide name of star file
-ProteinStar = 'Evas_data/HA.star'
-MembraneStar = 'Evas_data/membrane.star'
+ProteinStar = 'Jack_data/HA_job885.star'
+MembraneStar = 'Membrane_job915_3000particles.star'
 
 # +/- central particle to search, this may be useful to mitigate effect of missing wedge on results.
 Zrange = 1000
 
-# Output star file of particles between two angles (True or False followed by the angles to search between):
+# Output star file of particles between two angles (greater than of = to first, less than second) (True or False followed by the angles to search between):
 
-CreateStarFile = 'false'
+CreateStarFile = 'False'
 
 FirstAngle = 0
 SecondAngle = 2
@@ -28,10 +28,10 @@ SecondAngle = 2
 # Set which graphs are required by adding True of False:
 
 HISTOGRAM = 'True'
-HISTOGRAMNAME = 'Evas_data/histrecent.png'
+HISTOGRAMNAME = 'Jack_data/testing.png'
 
 DISTRIBUTIONPLOT = 'False'
-DISTRIBUTIONPLOTNAME = 'Dist15042020.png'
+DISTRIBUTIONPLOTNAME = 'Jack_data/dist.png'
 
 VECTORSPLOT = 'False'
 VECTORSPLOTNAME = 'Vect15042020'
@@ -221,7 +221,7 @@ def AngleOffset(Vector1, Vector2):
     Vector1 = Vector1 / np.linalg.norm(Vector1)
     Vector2 = Vector2 / np.linalg.norm(Vector2)
     # calculate the offset and axis of rotation to take vector to the z axis
-    angle = CalculateAngleBetweenVector(Vector1, Vector2)
+    angle = CalculateAngleBetweenVector(Vector1, Vector2) * -1
     cross = np.cross(Vector1, Vector2)
     RM = RotationMatrix(cross, angle)
 
@@ -272,7 +272,9 @@ print('Main processing...')
 for n in tqdm(range(0, (file1_array.shape[0] - 1))):
     for n2 in range(0, (file2_array.shape[0] - 1)):
         # Iterating through all the lines until a protein and membrane with the same name are found
-        if file1_array[n, 0].split('/')[3] == (file2_array[n2, 0].split('/'))[3]:
+        if file1_array[n, 0].split('/')[4] == (file2_array[n2, 0].split('/'))[4]:
+            print(file1_array[n, 0].split('/')[4])
+            print(file2_array[n2, 0].split('/')[4])
             # pull out the tomogram name
             filename = (file1_array[n, 5])
             # Generate a temp array with all coordinates of particles in that tomogram
@@ -290,13 +292,13 @@ for n in tqdm(range(0, (file1_array.shape[0] - 1))):
             if file1_array[n, 4] < RangeTop and file1_array[n, 4] > RangeBot:
 
                 # Protein angles
-                Protein_Rot = file1_array[n, 1] * -1
-                Protein_Tilt = file1_array[n, 2] * -1
-                Protein_Psi = file1_array[n, 3] * -1
+                Protein_Rot = file1_array[n, 1]
+                Protein_Tilt = file1_array[n, 2]
+                Protein_Psi = file1_array[n, 3]
                 # Membrane angles
-                Mem_Rot = file2_array[n2, 1] * -1
-                Mem_Tilt = file2_array[n2, 2] * -1
-                Mem_Psi = file2_array[n2, 3] * -1
+                Mem_Rot = file2_array[n2, 1]
+                Mem_Tilt = file2_array[n2, 2]
+                Mem_Psi = file2_array[n2, 3]
 
                 # Because membrane and protein have been aligned with symmetry applied they both line up on the z axis
                 # This normalises the normal to the membrane to 0,0,1 and the HA to a vector around this.
@@ -305,10 +307,10 @@ for n in tqdm(range(0, (file1_array.shape[0] - 1))):
                 Tilts.append(Tilt)
                 Psi = Protein_Psi - Mem_Psi
                 # Apply the rotation method function
-                ProteinRotated = RotationMethod(Psi, Tilt, Rot, (0,0,1))
+                ProteinRotated = RotationMethod(Rot, Tilt, Psi, (0,0,1))
                 #Apple the offset if needed
-                if ProVector != MemVector:
-                    ProteinRotated = ApplyRotationMatrix(ProteinRotated, OffsetRotationMatrix)
+                #if ProVector != MemVector:
+                #    ProteinRotated = ApplyRotationMatrix(ProteinRotated, OffsetRotationMatrix)
 
                 # Calculate Unit vectors
                 ProteinRotatedUV = ProteinRotated / np.linalg.norm(ProteinRotated)
@@ -319,13 +321,12 @@ for n in tqdm(range(0, (file1_array.shape[0] - 1))):
                 # Append that list of angles I made earlier
                 anglelist.append(angle)
 
-                # THIS NEEDS FIXING AFTER EULER DRAMA
                 # Here I am generating a vector to plot the angle of the HA relative to the membrane on a 3D quiver graph
                 VectorForPlotting = np.array([0, 0, 0, ProteinRotatedUV[0], ProteinRotatedUV[1], ProteinRotatedUV[2]])
                 ax.quiver(VectorForPlotting[0], VectorForPlotting[1], VectorForPlotting[2], VectorForPlotting[3],
                           VectorForPlotting[4], VectorForPlotting[5], pivot='tail', linewidths=1)
 
-                #THIS NEEDS FIXING AFTER EULER DRAMA
+
                 # I also wanted to plot the angular distribution so here I calculate the angle around the Z axis
                 AngleAroundZ = CalculateAngleAroundZ(ProteinRotatedUV)
                 AngleAroundZ = AngleAroundZ * (180 / math.pi)
@@ -335,7 +336,7 @@ for n in tqdm(range(0, (file1_array.shape[0] - 1))):
 
                 # Next I can output a text file of particle names at a specific angle
                 if CreateStarFile == 'True':
-                    if FirstAngle < angle < SecondAngle:
+                    if FirstAngle <= angle < SecondAngle:
                         SpecificAngleList.append(file1_array[n, 0])
 
 
@@ -360,7 +361,7 @@ if VECTORSPLOT == 'True' or 'true':
 # Other outputs:
 if CreateStarFile == 'True' or 'true':
     Outputdf = file1[file1.ImageName.isin(SpecificAngleList)]
-    OutputStarFile(Outputdf, 'StarFileOfProteinsBetweenAngles{}and{}.star'.format(FirstAngle, SecondAngle))
+    OutputStarFile(Outputdf, 'Jack_data/StarFileOfProteinsBetweenAngles{}and{}.star'.format(FirstAngle, SecondAngle))
 
 if AngleListOutput == 'True' or 'true':
     with open('Angles.txt', 'w') as f:

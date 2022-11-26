@@ -6,10 +6,10 @@ from mpl_toolkits.mplot3d import Axes3D
 ###-------Variables--------####
 
 #Path to the mrc file of the membrane to calculate the normal for
-MembranePath = 'emd_26210.map'
+MembranePath = 'emd_25833.map'
 
 #Contour level for display of the membrane
-MembraneContour = 130
+MembraneContour = 0.03111
 
 ###############################
 
@@ -34,35 +34,34 @@ class MembraneProcessor():
     def Zvector(self, ContourLevel):
         #Filtered Array
         FilteredArray = self.FilterArray(ContourLevel=ContourLevel)
-        print(FilteredArray.shape)
 
         #get the central slices and sum for some extra SNR
-        centralslices = FilteredArray[:, :, (FilteredArray.shape[2] - 20):(FilteredArray.shape[2] + 20)]
-        centralslices2 = FilteredArray[:, (FilteredArray.shape[2] - 20):(FilteredArray.shape[2] + 20), :]
-        centralslicessum = np.sum(centralslices, axis=2)
-        centralslicessum2 = np.sum(centralslices2, axis=1)
+        centralslicesX = FilteredArray[:, :, (int((FilteredArray.shape[2] / 2)) - 20):(int((FilteredArray.shape[2] / 2)) + 20)]
+        centralslicesY = FilteredArray[:, (int((FilteredArray.shape[2] / 2)) - 20):(int((FilteredArray.shape[2] / 2)) + 20), :]
+        centralslicessumX = np.sum(centralslicesX, axis=2)
+        centralslicessumY = np.sum(centralslicesY, axis=1)
+
 
         #find locations where the array is greater than 0 to create scatter plot
-        Ydirection = np.where(centralslicessum > 0)
-        Xdirection = np.where(centralslicessum2 > 0)
+        Ydirection = np.where(centralslicessumY > 0)
+        Xdirection = np.where(centralslicessumX > 0)
 
         #fit a line to the locations above 0
         Ym, Yc = np.polyfit(Ydirection[1], Ydirection[0], 1)
         Xm, Xc = np.polyfit(Xdirection[1], Xdirection[0], 1)
 
-        #plot figure if needed
-        fig, ax = plt.subplots(1, 2)
-        ax[0].scatter(Ydirection[1], Ydirection[0])
-        ax[0].plot(Ydirection[1], Ym * Ydirection[1] + Yc, color='y')
-        ax[1].scatter(Xdirection[1], Xdirection[0])
-        ax[1].plot(Xdirection[1], Xm * Xdirection[1] + Xc, color='y')
-        plt.setp(ax, xlim=(0,200), ylim=(0,200))
-        plt.show()
         #use equation for a line to calculate the z values
         Yzmin = Ym * (0) + Yc
         Yzmax = Ym * (200) + Yc
         Xzmin = Xm * 0 + Xc
         Xzmax = Xm * 200 + Xc
+
+        fig, ax = plt.subplots(1, 2)
+        ax[0].scatter(Ydirection[1], Ydirection[0])
+        ax[0].plot(Ydirection[1], Ym * Ydirection[1] + Yc, color='y')
+        ax[1].scatter(Xdirection[1], Xdirection[0])
+        ax[1].plot(Xdirection[1], Xm * Xdirection[1] + Xc, color='y')
+        plt.setp(ax, xlim=(0, FilteredArray.shape[2]), ylim=(0, FilteredArray.shape[1]))
 
         #Calculate the z direction for the vectors
         YZ = Yzmax - Yzmin
@@ -78,27 +77,17 @@ class MembraneProcessor():
         Cross = np.cross(VectorAlongX, VectorAlongY)
         Cross = Cross / np.linalg.norm(Cross)
 
-        #plot the cross product as a vector on the graphs earlier generated
-        ax[0].quiver(100, 113.631, Cross[1], Cross[2], scale = 5)
-        ax[0].quiver(100, 113.631, Cross[2], Cross[1] * -1, scale=5)
-        ax[1].quiver(100, 120, Cross[0], Cross[2], scale=5)
-        ax[1].quiver(100, 120, Cross[2], Cross[0]* -1, scale=5)
-        plt.show()
-
-        return YZ, XZ
+        return YZ, XZ, Cross
 
 #open the membrane mrc file
 Membrane = MembraneProcessor(MembranePath)
-YZ, XZ = Membrane.Zvector(ContourLevel=MembraneContour)
-
+YZ, XZ, Cross = Membrane.Zvector(ContourLevel=MembraneContour)
+print('Use this vector as the membrane vector for comparing angles between protein and membrane: {}'.format(Cross))
 VectorAlongX = (200, 0, XZ)
 VectorAlongY = (0, 200, YZ)
 
-Cross = np.cross(VectorAlongX, VectorAlongY)
-Cross = Cross / np.linalg.norm(Cross)
-print(Cross)
-point = np.array([100,100,100])
-xx, yy = np.meshgrid(range(200), range(200))
+point = np.array([Membrane.MembraneArray.shape[0]/2,Membrane.MembraneArray.shape[1]/2,Membrane.MembraneArray.shape[2]/2])
+xx, yy = np.meshgrid(range(Membrane.MembraneArray.shape[1]), range(Membrane.MembraneArray.shape[1]))
 d = -point.dot(Cross)
 zz = (-Cross[0] * xx - Cross[1] * yy -d) * 1. / Cross[2]
 threedimensionplot = np.where(Membrane.FilterArray(ContourLevel=MembraneContour) > 0)
@@ -110,9 +99,8 @@ fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 ax.plot_surface(xx,yy, zz, color='y')
 ax.scatter(threedimensionplotx, threedimensionploty, threedimensionplotz)
-
-ax.set_xlim(0,200)
-ax.set_ylim(0,200)
-ax.set_zlim(0,200)
+ax.quiver((Membrane.MembraneArray.shape[0] / 2),(Membrane.MembraneArray.shape[1] / 2),
+          (Membrane.MembraneArray.shape[2] / 2), Cross[0], Cross[1], Cross[2],
+          length=(Membrane.MembraneArray.shape[2] / 3), normalize=1, color='red')
 plt.show()
 

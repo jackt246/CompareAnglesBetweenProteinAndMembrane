@@ -1,11 +1,25 @@
 Currently there are two python scripts.
 
-The python scirpt: CompareAnglesBetweenProteinAndMembrane is the main script that takes in your relion star files from two seperate alignments in Relion. One alignment should use an alignment mask which focuses only on the ectodomain whilst the other focuses solely on the membrane.
+The python script: CompareAnglesBetweenProteinAndMembrane is the main script that takes in your relion star files from
+two seperate alignments in Relion. One alignment should use an alignment mask which focuses only on the ectodomain
+whilst the other focuses solely on the membrane.
 
-CompareAnglesBetweenProteinAndMembrane requires you to define 2 starting vectors. Align the ectodomain of the protein with C3 symmetry or similar and you can simply used 0,0,1 for this vector. The membrane can be aligned with C1 alignment and many classes could be aligned to get different curvatures. To get the correct starting vector for this you can run the Membraneproprocessing script first.
+IMPORTANT: The particles of the Protein and the Membrane must have the same naming scheme applied t the particle files. To achieve this extract
+the protein particles first. Run a full refinement protocol in Relion until you have a subtomogram average finished. Then use
+the particle extraction option in Relion to re-extract using the star file from the completed subtomogram average. When
+re-extracting the particles apply a shift so that the membrane is centered in the box. This will retain the particle naming used
+for the protein averaging whilst making the membrane the centre of rotation. You can then run a standard subtomogram
+averaging protocol on the membrane. Once the membrane is resolved you can put it through Membranepreprocessing.py to calculate
+the vector which is a normal to the membrane in three dimensions.
+
+CompareAnglesBetweenProteinAndMembrane requires you to define 2 starting vectors. Align the ectodomain of the protein
+with C3 symmetry or similar and you can simply used 0,0,1 for this vector. The membrane can be aligned with C1 alignment
+and many classes could be aligned to get different membrane curvatures. To get the correct starting vector for this you can run
+the Membraneproprocessing script first.
 
 If you just want a quick and dirty calculation align the membrane with C3 symmetry so that the vector is 0,0,1.
 
-If just wanting to run the main script to see how things work you can use the protein and membrane example star files. This is based on real data but has not been verified to be correct.
+If just wanting to run the main script to see how things work you can use the protein and membrane example star files.
+This is based on real data but has not been verified to be correct.
 
 Note: Membranepreprocessing has had less thought put into the layout and the input information is under the function definitions. 

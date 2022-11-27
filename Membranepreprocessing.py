@@ -83,6 +83,9 @@ class MembraneProcessor():
 Membrane = MembraneProcessor(MembranePath)
 YZ, XZ, Cross = Membrane.Zvector(ContourLevel=MembraneContour)
 print('Use this vector as the membrane vector for comparing angles between protein and membrane: {}'.format(Cross))
+
+#Everything from here on out could techniqually  be a function, it plots everything in a three dimensional
+#graph so you can view the structure, the membrane and hte vector described in the print above.
 VectorAlongX = (200, 0, XZ)
 VectorAlongY = (0, 200, YZ)
 

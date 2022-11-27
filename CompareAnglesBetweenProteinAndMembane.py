@@ -15,17 +15,25 @@ from tqdm import tqdm
 ProteinStar = 'Jack_data/HA_job885.star'
 MembraneStar = 'Membrane_job915_3000particles.star'
 
-# +/- central particle to search, this may be useful to mitigate effect of missing wedge on results.
+#Vectors. Protein will likely be 0,0,1 if aligned to some kind of symmetry in Relion.
+# Membrane vector should be defined used the Membranepreprocessing.py script.
+ProVector = (0, 0, 1) #Protein vector in the subtomogram averages
+MemVector = (0, 0, 1) #Membrane vector from Membranepreprocessing.py script
+
+# +/- central particle to search, this may be useful to mitigate effect of particles at the top and bottom ofthe tomogram
+# on results. Leave at 1000 or some other large number if you aren't worrying about this.
 Zrange = 1000
 
-# Output star file of particles between two angles (greater than of = to first, less than second) (True or False followed by the angles to search between):
+# Output star file of particles between two angles (greater than or equal to FirstAngle, less than second angle)
+# (True or False followed by the angles to search between)
+# This can be used to refine structures at particular angles
 
 CreateStarFile = 'False'
 
 FirstAngle = 0
 SecondAngle = 2
 
-# Set which graphs are required by adding True of False:
+# Set which graphs are wanted by adding True of False:
 
 HISTOGRAM = 'True'
 HISTOGRAMNAME = 'Jack_data/testing.png'
@@ -38,9 +46,6 @@ VECTORSPLOTNAME = 'Vect15042020'
 
 #Write out list of angles:
 AngleListOutput = 'False'
-
-ProVector = (0, 0, 1)
-MemVector = (0, 0, 1)
 
 # -------- Functions -------- #
 
